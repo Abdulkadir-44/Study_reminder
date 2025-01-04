@@ -17,15 +17,28 @@ export const fetchDashboardData = {
   fetchActiveReminders: async (setActiveReminders) => {
     try {
       const response = await getActiveReminders();
+      // console.log('Backend response:', response);
+
+      // Eğer response veya data yoksa boş değerlerle devam et
+      const reminders = response?.data || [];
+      
       setActiveReminders({
-        total: response.reminders.length,
-        todayCount: response.reminders.filter(
+        total: reminders.length,
+        todayCount: reminders.filter(
           reminder => reminder.dayOfWeek === new Date().toLocaleDateString('tr-TR', { weekday: 'long' })
         ).length,
-        reminders: response.reminders
+        reminders: reminders
       });
     } catch (error) {
+      console.error('Hatırlatıcı hatası:', error);
       toast.error('Hatırlatıcılar yüklenirken bir hata oluştu');
+      
+      // Hata durumunda varsayılan değerler set et
+      setActiveReminders({
+        total: 0,
+        todayCount: 0,
+        reminders: []
+      });
     }
   },
 

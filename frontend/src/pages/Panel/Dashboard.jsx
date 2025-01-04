@@ -16,6 +16,7 @@ import { createLesson } from '../../services';
 import { toast } from 'sonner';
 import { Popover } from '@headlessui/react';
 import { fetchDashboardData } from '../../hooks/useDashboardData';
+import Header from '../../components/Header';
 
 
 // Tarih formatı
@@ -68,7 +69,6 @@ const Dashboard = () => {
 
   // Veri yükleme fonksiyonunu useCallback ile sarmalayalım
   const loadDashboardData = useCallback(async () => {
-    console.log("Veri yükleniyor...");
     await Promise.all([
       fetchDashboardData.fetchTodaysLessons(setTodaysLessons, setTodaysLessonsArray),
       fetchDashboardData.fetchActiveReminders(setActiveReminders),
@@ -99,34 +99,12 @@ const Dashboard = () => {
       toast.error(error.response?.data?.message || 'Ders eklenirken bir hata oluştu');
     }
   };
+  // console.log(activeReminders.reminders)
 
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Header Bölümü */}
-      <div className="bg-white shadow-md">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo - MD ve üstünde görünür */}
-            <div className="hidden md:flex items-center">
-              <div className='bg-blue-900/80 py-3 px-2 rounded-full'>
-                <img
-                  src="/logo/mylogo.svg" // Logo yolunu güncelleyin
-                  alt="Logo"
-                  className="h-8 w-auto select-none"
-                />
-              </div>
-            </div>
-
-            {/* Hoşgeldin Mesajı */}
-            <div>
-              <h1 className="text-xl font-semibold text-gray-800">
-                Hoşgeldin, <span className="text-blue-600">{user.fullName}</span>
-              </h1>
-              <span className='text-gray-500 text-sm font-medium'>Bugün için {todaysLessons.count} ders planlandı</span>
-            </div>
-          </div>
-        </div>
-      </div>
+      <Header />
 
       <div className="container mx-auto px-3 lg:px-4 mt-5">
         {/* Ana Aksiyon Butonu */}

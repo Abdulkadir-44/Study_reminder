@@ -4,6 +4,7 @@ import Login from '../pages/Authentication/Login';
 import Register from '../pages/Authentication/Register';
 import Dashboard from '../pages/Panel/Dashboard';
 import ResetPassword from '../pages/Authentication/ResetPassword';
+import LessonsList from '../pages/Panel/LessonsList';
 
 // Protected Route komponenti
 const ProtectedRoute = ({ children }) => {
@@ -63,6 +64,15 @@ const AppRouter = () => {
                     element={
                         <ProtectedRoute>
                             <Dashboard />
+                        </ProtectedRoute>
+                    }
+                />
+                {/* Protected Routes */}
+                <Route
+                    path="/lessons"
+                    element={
+                        <ProtectedRoute>
+                            <LessonsList />
                         </ProtectedRoute>
                     }
                 />
