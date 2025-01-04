@@ -1,5 +1,6 @@
 const Lesson = require('../models/Lesson');
 const { calculateTotalHours, filterCompletedLessons } = require('../utils/helper');
+const { checkAndSendLessonReminder } = require('../utils/emailService');
 
 // @desc    Ders oluştur
 // @route   POST /api/lessons
@@ -315,6 +316,21 @@ const getLessonProgress = async (req, res) => {
   }
 };
 
+// @desc    Manuel olarak ders hatırlatması gönder
+// @route   POST /api/lessons/send-reminder
+// @access  Private
+const sendManualReminder = async (req, res) => {
+  try {
+    const result = await checkAndSendLessonReminder(req.user.id);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Hatırlatma gönderilirken bir hata oluştu'
+    });
+  }
+};
+
 module.exports = {
   createLesson,
   getLessons,
@@ -324,5 +340,6 @@ module.exports = {
   getTodaysLessons,
   getActiveReminders,
   getTimeUntilStart,
-  getLessonProgress
+  getLessonProgress,
+  sendManualReminder
 }; 

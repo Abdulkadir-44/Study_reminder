@@ -180,7 +180,7 @@ const Register = () => {
                         </button>
                         <div className="mt-4 text-center">
                             <span className="text-gray-200">Hesabınız var mı ? </span>
-                            <NavLink to="/" className="text-purple-600 hover:text-purple-500 font-medium">
+                            <NavLink to="/login" className="text-purple-600 hover:text-purple-500 font-medium">
                                 Giriş yap
                             </NavLink>
                         </div>
