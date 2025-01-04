@@ -26,7 +26,9 @@ const userSchema = new mongoose.Schema({
         trim: true,
         unique: true,
         match: [/^[0-9]{10}$/, "Geçersiz telefon numarası !"]
-    }
+    },
+    resetPasswordToken: String,
+    resetPasswordExpire: Date
 }, { timestamps: true });
 
 

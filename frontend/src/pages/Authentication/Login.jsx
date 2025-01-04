@@ -8,6 +8,7 @@ import { login } from "../../services";
 import { useDispatch } from "react-redux";
 import { userLogin } from "../../redux/userSlice";
 import { validateEmail } from "../../utils/helper";
+import ModalOfForgotPassword from '../../components/modal/ModalOfForgotPassword';
 
 
 const Login = () => {
@@ -18,6 +19,7 @@ const Login = () => {
         password: ''
     });
     const [showPassword, setShowPassword] = useState(false);
+    const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -64,9 +66,9 @@ const Login = () => {
     return (
         <div className="min-h-screen flex items-center justify-center bg-login-background bg-cover px-6 bg-center relative">
             <div className="relative">
-                <div className="absolute -inset-4 backdrop-blur-md rounded-xl" />
-                
-                <motion.div 
+                <div className="absolute -inset-0 backdrop-blur-md rounded-xl" />
+
+                <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.3 }}
@@ -146,18 +148,19 @@ const Login = () => {
                         </button>
 
                         <div className="flex justify-end mt-2">
-                            <NavLink 
-                                to="/forgot-password" 
+                            <button
+                                type='button'
+                                onClick={() => setShowForgotPasswordModal(true)}
                                 className="text-sm text-gray-200 bg-purple-600/20 px-2 py-1 rounded-md hover:text-purple-500 hover:bg-white/40 duration-300 font-medium"
                             >
                                 Şifremi unuttum!
-                            </NavLink>
+                            </button>
                         </div>
 
                         <div className="mt-4 text-center">
                             <span className="text-gray-200">Hesabınız yok mu? </span>
-                            <NavLink 
-                                to="/register" 
+                            <NavLink
+                                to="/register"
                                 className="text-purple-600 ml-2 hover:text-purple-500 font-medium"
                             >
                                 Kayıt Ol
@@ -166,6 +169,12 @@ const Login = () => {
                     </motion.form>
                 </motion.div>
             </div>
+            {
+                showForgotPasswordModal && (
+                    <ModalOfForgotPassword onClose={() => setShowForgotPasswordModal(false)} />
+                )
+            }
+
         </div>
     );
 };

@@ -9,7 +9,8 @@ const {
   deleteLesson,
   getTodaysLessons,
   getActiveReminders,
-  getLessonProgress
+  getLessonProgress,
+  sendManualReminder
 } = require('../controllers/lessonController');
 
 router.use(protect); // Tüm routes'ları koruma altına al
@@ -26,5 +27,7 @@ router.route('/:id')
   .get(getLesson)
   .put(updateLesson)
   .delete(deleteLesson);
+
+router.post('/send-reminder', sendManualReminder);
 
 module.exports = router; 

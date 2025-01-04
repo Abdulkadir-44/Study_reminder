@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import Login from '../pages/Authentication/Login';
 import Register from '../pages/Authentication/Register';
 import Dashboard from '../pages/Panel/Dashboard';
+import ResetPassword from '../pages/Authentication/ResetPassword';
 
 // Protected Route komponenti
 const ProtectedRoute = ({ children }) => {
@@ -44,6 +45,14 @@ const AppRouter = () => {
                     element={
                         <PublicRoute>
                             <Register />
+                        </PublicRoute>
+                    }
+                />
+                <Route
+                    path="/reset-password/:token"
+                    element={
+                        <PublicRoute>
+                            <ResetPassword />
                         </PublicRoute>
                     }
                 />

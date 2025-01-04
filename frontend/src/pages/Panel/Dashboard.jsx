@@ -83,7 +83,7 @@ const Dashboard = () => {
     // Her 1 dakikada bir yenile
     const intervalId = setInterval(() => {
       loadDashboardData();
-    }, 60000); // 10 saniye
+    }, 60000); // 60 saniye
 
     // Cleanup function
     return () => clearInterval(intervalId);
