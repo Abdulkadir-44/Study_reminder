@@ -31,12 +31,11 @@ const dateOptions = {
 const timeOptions = {
   hour: '2-digit',
   minute: '2-digit',
-  second: '2-digit',
   hour12: false
 };
 
 const Dashboard = () => {
-  const { user } = useSelector(state => state.user.user)
+
   const [showLessonForm, setShowLessonForm] = useState(false);
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
   const [todaysLessonsArray, setTodaysLessonsArray] = useState([]);
@@ -58,11 +57,11 @@ const Dashboard = () => {
     percentage: 0
   });
 
-  // Tarih ve saati her saniye güncelle
+  //  Tarih ve saati her dakika güncelle
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentDateTime(new Date());
-    }, 1000);
+    }, 60000);
 
     return () => clearInterval(timer);
   }, []);
@@ -99,7 +98,7 @@ const Dashboard = () => {
       toast.error(error.response?.data?.message || 'Ders eklenirken bir hata oluştu');
     }
   };
-  // console.log(activeReminders.reminders)
+  //  console.log(activeReminders.reminders)
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -242,16 +241,16 @@ const Dashboard = () => {
 
           {/* Sağ Sidebar - Yaklaşan Hatırlatıcılar */}
           <div className="bg-gradient-to-br from-green-50 to-white p-6 rounded-lg shadow-md border border-green-100">
-            <div className='flex items-center'>
+            <div className='flex items-center mb-4'>
               <FontAwesomeIcon icon={faCalendar} className='text-red-600 text-xl mr-2' />
-              <h2 className="text-xl font-semibold">Yaklaşan Hatırlatıcılar</h2>
+              <h2 className="text-xl font-semibold ">Yaklaşan Hatırlatıcılar</h2>
             </div>
             <div className="space-y-4">
               {activeReminders.reminders.length === 0 ? (
                 <p className="text-gray-500">Aktif hatırlatıcı bulunmuyor</p>
               ) : (
                 activeReminders.reminders.map(reminder => (
-                  <div key={reminder.id} className="flex items-center justify-between p-3 bg-blue-50 rounded shadow-sm border border-blue-100">
+                  <div key={reminder._id} className="flex items-center justify-between p-3 bg-blue-300/20 rounded shadow-sm border border-blue-100">
                     <div>
                       <p className="font-semibold">{reminder.name}</p>
                       <p className="text-sm text-gray-600">
@@ -345,4 +344,34 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard; 
+export default Dashboard;
+
+/*
+
+
+useEffect(() => {
+    const updateCurrentTime = () => {
+      setCurrentDateTime(new Date());
+    };
+
+    // Şu anki zamanı al
+    const now = new Date();
+
+    // Şu anki saniyeyi al ve bir sonraki dakika başına kadar olan süreyi hesapla
+    const millisecondsUntilNextMinute = (60 - now.getSeconds()) * 1000;
+
+    // İlk güncelleme, bir sonraki dakika başına kadar bekle
+    const initialTimeout = setTimeout(() => {
+      updateCurrentTime();
+
+      // her dakika başında güncelleme yapmak için setInterval
+      const timer = setInterval(updateCurrentTime, 60000);
+
+      // Cleanup component unmount olduğunda interval'ı temizle
+      return () => clearInterval(timer);
+    }, millisecondsUntilNextMinute);
+
+    // Cleanup: component unmount olduğunda timeout'u temizle
+    return () => clearTimeout(initialTimeout);
+  }, []);
+*/

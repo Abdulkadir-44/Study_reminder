@@ -217,52 +217,68 @@ const getTodaysLessons = async (req, res) => {
 const getActiveReminders = async (req, res) => {
   try {
     const now = new Date();
-    const tomorrow = new Date(now);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
+    const next24Hours = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    
     const today = now.toLocaleDateString('tr-TR', { weekday: 'long' });
-    const tomorrowDay = tomorrow.toLocaleDateString('tr-TR', { weekday: 'long' });
+    const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000)
+      .toLocaleDateString('tr-TR', { weekday: 'long' });
 
-    const currentTime = now.toLocaleTimeString('tr-TR', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    });
-
-    // Bugün ve yarının derslerini getir
-    const activeReminders = await Lesson.find({
-      userId: req.user.id,
-      $or: [
-        // Bugünün kalan dersleri
-        {
-          dayOfWeek: today,
-          startTime: { $gt: currentTime }
-        },
-        // Yarının dersleri
-        {
-          dayOfWeek: tomorrowDay
-        }
-      ]
+    const lessons = await Lesson.find({
+      userId: req.user._id,
+      dayOfWeek: { $in: [today, tomorrow] }
     }).sort({ startTime: 1 });
+
+    // Dersleri işle ve timeUntilStart ekle
+    const activeLessons = lessons.filter(lesson => {
+      const [hours, minutes] = lesson.startTime.split(':');
+      const lessonDate = new Date();
+      
+      if (lesson.dayOfWeek === tomorrow) {
+        lessonDate.setDate(lessonDate.getDate() + 1);
+      }
+      
+      lessonDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+      
+      return lessonDate >= now && lessonDate <= next24Hours;
+    }).map(lesson => {
+      const [hours, minutes] = lesson.startTime.split(':');
+      const lessonDate = new Date();
+      
+      if (lesson.dayOfWeek === tomorrow) {
+        lessonDate.setDate(lessonDate.getDate() + 1);
+      }
+      
+      lessonDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+      
+      // Kalan süreyi hesapla
+      const timeDiff = lessonDate - now;
+      const hoursDiff = Math.floor(timeDiff / (1000 * 60 * 60));
+      const minutesDiff = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+      
+      let timeUntilStart;
+      if (hoursDiff > 0) {
+        timeUntilStart = `${hoursDiff} saat ${minutesDiff} dakika`;
+      } else {
+        timeUntilStart = `${minutesDiff} dakika`;
+      }
+      
+      return {
+        ...lesson.toObject(),
+        timeUntilStart
+      };
+    });
 
     res.json({
       success: true,
-      count: activeReminders.length,
-      reminders: activeReminders.map(lesson => ({
-        id: lesson._id,
-        name: lesson.name,
-        startTime: lesson.startTime,
-        classroom: lesson.classroom,
-        dayOfWeek: lesson.dayOfWeek, // Hangi gün olduğunu da ekleyelim
-        timeUntilStart: getTimeUntilStart(lesson.startTime, lesson.dayOfWeek === tomorrowDay)
-      }))
+      count: activeLessons.length,
+      data: activeLessons
     });
 
   } catch (error) {
+    console.error('Aktif hatırlatıcıları getirme hatası:', error);
     res.status(500).json({
       success: false,
-      message: 'Aktif hatırlatıcılar getirilirken bir hata oluştu',
-      error: error.message
+      message: 'Aktif hatırlatıcılar getirilirken bir hata oluştu'
     });
   }
 };

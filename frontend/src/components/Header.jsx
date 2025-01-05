@@ -1,11 +1,14 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from "react-redux"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faUser } from '@fortawesome/free-solid-svg-icons';
 import { getTodaysLessons } from "../services"
+import { userLogout } from "../redux/userSlice"
+import { useDispatch } from "react-redux"
 
 const Header = () => {
+    const dispatch = useDispatch();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [todaysLessons, setTodaysLessons] = useState({
         count: 0,
@@ -14,7 +17,14 @@ const Header = () => {
     const menuRef = useRef(null);
     const { user } = useSelector(state => state.user.user)
     const navigate = useNavigate();
+    const location = useLocation();
 
+    const handleNavigation = (path) => {
+        if (path !== location.pathname) {
+            navigate(path)
+        }
+        setIsMenuOpen(false)
+    }
     // Menü dışına tıklandığında menüyü kapat
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -79,17 +89,14 @@ const Header = () => {
                             <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
                                 <div className="py-1">
                                     <button
-                                        onClick={() => {
-                                            navigate('/lessons');
-                                            setIsMenuOpen(false);
-                                        }}
+                                        onClick={() => handleNavigation("/lessons")}
                                         className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                     >
                                         Ders Programı
                                     </button>
                                     <button
                                         onClick={() => {
-                                            // Çıkış işlemi buraya gelecek
+                                            dispatch(userLogout())
                                             setIsMenuOpen(false);
                                         }}
                                         className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
