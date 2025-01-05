@@ -124,7 +124,8 @@ const updateLesson = async (req, res) => {
 
     res.json({
       success: true,
-      data: lesson
+      data: lesson,
+      message: 'Ders başarıyla güncellendi !'
     });
   } catch (error) {
     res.status(500).json({
@@ -139,6 +140,7 @@ const updateLesson = async (req, res) => {
 // @route   DELETE /api/lessons/:id
 // @access  Private
 const deleteLesson = async (req, res) => {
+  
   try {
     const lesson = await Lesson.findById(req.params.id);
 
@@ -148,6 +150,7 @@ const deleteLesson = async (req, res) => {
         message: 'Ders bulunamadı'
       });
     }
+    
 
     // Dersin bu kullanıcıya ait olduğunu kontrol et
     if (lesson.userId.toString() !== req.user.id) {
@@ -157,7 +160,7 @@ const deleteLesson = async (req, res) => {
       });
     }
 
-    await lesson.remove();
+    await lesson.deleteOne();
 
     res.json({
       success: true,

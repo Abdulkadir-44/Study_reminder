@@ -2,17 +2,37 @@ import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes, faSave } from '@fortawesome/free-solid-svg-icons';
 
-const LessonForm = ({ onClose, onSubmit }) => {
-    const [formData, setFormData] = useState({
-        name: '',
-        instructor: '',
-        dayOfWeek: '',
-        startTime: '',
-        endTime: '',
-        classroom: '',
-        color: '#3B82F6',
-        notes: ''
-    });
+//bence bu modala bir tane lesson propu gelmeli eğer gelmez ise default olarak false olsun
+//eğer task olursa input değerleri lesson propundan gelsin,eğer yoksa boş olarak gelsin
+
+const getChangedFields = (data, originalData) => {
+    // Değişen özellikleri tespit et
+    const changedFields = {};
+    for (const key in data) {
+        if (data[key] !== originalData[key]) {
+            changedFields[key] = data[key];
+        }
+    }
+    return changedFields;
+};
+
+const LessonForm = ({ onClose, onSubmit, lesson }) => {
+
+    const initialFormData = {
+        name: lesson?.name || '',
+        instructor: lesson?.instructor || '',
+        dayOfWeek: lesson?.dayOfWeek || '',
+        startTime: lesson?.startTime || '',
+        endTime: lesson?.endTime || '',
+        classroom: lesson?.classroom || '',
+        color: lesson?.color || '#3B82F6',
+        notes: lesson?.notes || ''
+    };
+
+    const [formData, setFormData] = useState(initialFormData);
+    const [originalData] = useState(initialFormData);
+    const changes = getChangedFields(formData, originalData);
+
 
     const daysOfWeek = [
         'Pazartesi',
@@ -34,14 +54,18 @@ const LessonForm = ({ onClose, onSubmit }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        onSubmit(formData);
+        if (lesson) {
+            onSubmit(lesson._id, formData);
+        } else {
+            onSubmit(formData);
+        }
     };
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4">
             <div className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] flex flex-col">
                 <div className="flex justify-between items-center p-4 sm:p-6 border-b sticky top-0 bg-white rounded-t-lg">
-                    <h2 className="text-lg sm:text-xl bg-green-800/50 text-white px-3 py-1 rounded-md font-semibold text-gray-800">Yeni Ders Ekle</h2>
+                    <h2 className="text-lg sm:text-xl bg-green-800/50 text-white px-3 py-1 rounded-md font-semibold text-gray-800">{lesson ? "Ders Güncelle" : "Yeni Ders Ekle"}</h2>
                     <button
                         type="button"
                         onClick={onClose}
@@ -180,11 +204,12 @@ const LessonForm = ({ onClose, onSubmit }) => {
                                     İptal
                                 </button>
                                 <button
+                                    disabled={Object.keys(changes).length != 0 ? false : true}
                                     type="submit"
-                                    className="px-3 sm:px-4 py-2 text-sm sm:text-base bg-blue-600 text-white hover:bg-blue-700 rounded-md transition duration-300 flex items-center"
+                                    className="px-3 sm:px-4 py-2 text-sm disabled:opacity-50 sm:text-base bg-blue-600 text-white hover:bg-blue-700 rounded-md transition duration-300 flex items-center"
                                 >
                                     <FontAwesomeIcon icon={faSave} className="mr-2" />
-                                    Kaydet
+                                    {lesson ? "Güncelle" : "Kaydet"}
                                 </button>
                             </div>
                         </div>

@@ -3,14 +3,18 @@ import { getLessons } from '../../services';
 import { toast } from 'sonner';
 import Header from '../../components/Header';
 import { Popover } from '@headlessui/react';
-import {createLesson} from "../../services"
+import { createLesson, deleteLesson , updateLesson } from "../../services"
 import LessonForm from '../../components/Modal/LessonForm';
+import ModalOfDelete from '../../components/modal/ModalOfDelete';
 
 const LessonsList = () => {
     const [lessons, setLessons] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showLessonForm, setShowLessonForm] = useState(false);
-
+    const [showEditLessonForm, setShowEditLessonForm] = useState(false);
+    const [selectedLesson, setSelectedLesson] = useState(null);
+    const [showModalOfDelete, setShowModalOfDelete] = useState(false)
+    
     useEffect(() => {
         fetchLessons();
     }, []);
@@ -29,7 +33,7 @@ const LessonsList = () => {
             setLoading(false);
         }
     };
-    console.log(lessons)
+    // console.log(lessons)
 
     // Gün sıralaması için sabit bir dizi
     const dayOrder = [
@@ -65,19 +69,55 @@ const LessonsList = () => {
     }, {});
 
     const handleAddLesson = async (lessonData) => {
-        console.log("deneme abi")
-         try {
-             const response = await createLesson(lessonData);
-             setShowLessonForm(false);
-             toast.success(response.message);
-             setTimeout(() => {
+        
+        try {
+            const response = await createLesson(lessonData);
+            toast.success(response.message);
+            setTimeout(() => {
                 window.location.reload();
-             }, 1000);
-         } catch (error) {
-             toast.error(error.response?.data?.message || 'Ders eklenirken bir hata oluştu');
-         }
+            }, 1000);
+        } catch (error) {
+            toast.error(error?.message || 'Ders eklenirken bir hata oluştu');
+        }
+        finally{
+            setShowLessonForm(false)
+        }
     };
 
+    const handleDeleteLesson = async (id) => {
+        
+        try {
+            
+            const response = await deleteLesson(id);
+            
+            toast.success(response.message);
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        } catch (error) {
+            toast.error(error?.message || 'Ders silinirken bir hata oluştu');
+        }finally{
+            setShowModalOfDelete(false)
+        }
+    }
+
+    const handleEditLesson = async (id, formData) => {
+        
+        try {
+            const response = await updateLesson(id,formData)
+            
+            toast.success(response?.message)
+             setTimeout(() => {
+                 window.location.reload();
+             }, 1000);
+        } catch (error) {
+            toast.error(error?.message || 'Ders güncellenirken bir hata oluştu');
+        }
+        finally{
+            setShowEditLessonForm(false)
+        }
+    }
+    
     return (
         <div>
             <Header />
@@ -181,10 +221,18 @@ const LessonsList = () => {
                                                                 </td>
 
                                                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                                    <button className="bg-indigo-600 text-white px-2 py-1 rounded-md hover:bg-indigo-900  mr-3 transition-colors duration-200">
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            setSelectedLesson(lesson)
+                                                                            setShowEditLessonForm(true)
+                                                                        }}
+                                                                        className="bg-indigo-600 text-white px-2 py-1 rounded-md hover:bg-indigo-900  mr-3 transition-colors duration-200">
                                                                         Düzenle
                                                                     </button>
-                                                                    <button className="bg-red-600 text-white hover:bg-red-800 py-1 px-2 rounded-md transition-colors duration-200">
+                                                                    <button onClick={() =>{
+                                                                        setSelectedLesson(lesson)
+                                                                        setShowModalOfDelete(true)
+                                                                    }} className="bg-red-600 text-white hover:bg-red-800 py-1 px-2 rounded-md transition-colors duration-200">
                                                                         Sil
                                                                     </button>
                                                                 </td>
@@ -208,6 +256,23 @@ const LessonsList = () => {
                     onSubmit={handleAddLesson}
                 />
             )}
+
+            {showEditLessonForm && (
+                <LessonForm
+                    onClose={() => setShowEditLessonForm(false)}
+                    onSubmit={handleEditLesson}
+                    lesson={selectedLesson}
+                />
+            )}
+            {
+                showModalOfDelete && (
+                     <ModalOfDelete
+                         onConfirm={() => handleDeleteLesson(selectedLesson._id)}
+                         onCancel={() => setShowModalOfDelete(false)}
+                     />
+                    
+                )
+            }
         </div>
     );
 };
